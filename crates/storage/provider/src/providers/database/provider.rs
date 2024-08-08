@@ -2003,18 +2003,10 @@ impl<TX: DbTx> BlockReader for DatabaseProvider<TX> {
     }
 
     fn ommers(&self, id: BlockHashOrNumber) -> ProviderResult<Option<Vec<Header>>> {
-        if let Some(number) = self.convert_hash_or_number(id)? {
-            // If the Paris (Merge) hardfork block is known and block is after it, return empty
-            // ommers.
-            if self.chain_spec.final_paris_total_difficulty(number).is_some() {
-                return Ok(Some(Vec::new()))
-            }
-
+        if let Some(number) = self.convert_number(id)? {
             let ommers = self.tx.get::<tables::BlockOmmers>(number)?.map(|o| o.ommers);
             return Ok(ommers)
         }
-
-        Ok(None)
     }
 
     fn block_body_indices(&self, num: u64) -> ProviderResult<Option<StoredBlockBodyIndices>> {

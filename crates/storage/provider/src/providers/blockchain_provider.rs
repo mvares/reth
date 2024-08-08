@@ -425,6 +425,12 @@ where
     }
 
     fn ommers(&self, id: BlockHashOrNumber) -> ProviderResult<Option<Vec<Header>>> {
+        // If the Paris (Merge) hardfork block is known and block is after it, return empty
+        // ommers.
+        if self.chain_spec().final_paris_total_difficulty(block_number) {
+            return Ok(Some(Vec::new()))
+        }
+
         self.database.ommers(id)
     }
 
